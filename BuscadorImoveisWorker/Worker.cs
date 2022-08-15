@@ -8,13 +8,15 @@ namespace BuscadorImoveisWorker
         private readonly ILogger<Worker> _logger;
         private readonly AvaliadorNetImoveis avaliadorNetImoveis;
         private readonly AvaliadorZapImoveis avaliadorZapImoveis;
+        private readonly AvaliadorCasaMineira avaliadorCasaMineira;
         private readonly NotificadorTelegram notificadorTelegram;
 
-        public Worker(ILogger<Worker> logger, AvaliadorNetImoveis avaliadorNetImoveis, AvaliadorZapImoveis avaliadorZapImoveis, NotificadorTelegram notificadorTelegram)
+        public Worker(ILogger<Worker> logger, AvaliadorNetImoveis avaliadorNetImoveis, AvaliadorZapImoveis avaliadorZapImoveis, AvaliadorCasaMineira avaliadorCasaMineira, NotificadorTelegram notificadorTelegram)
         {
             _logger = logger;
             this.avaliadorNetImoveis = avaliadorNetImoveis;
             this.avaliadorZapImoveis = avaliadorZapImoveis;
+            this.avaliadorCasaMineira = avaliadorCasaMineira;
             this.notificadorTelegram = notificadorTelegram;
         }
 
@@ -27,7 +29,8 @@ namespace BuscadorImoveisWorker
             var avaliacoesParaFazer = new Dictionary<IAvaliadorImoveis, AvaliacaoRequest>()
             {
                 { avaliadorNetImoveis, new AvaliacaoRequest("NetImoveis Coberturas", BuscadorNetImoveis.UrlBuscaCoberturas) },
-                { avaliadorZapImoveis, new AvaliacaoRequest("ZapImoveis Coberturas", BuscadorZapImoveis.UrlBuscaCoberturas) }
+                { avaliadorZapImoveis, new AvaliacaoRequest("ZapImoveis Coberturas", BuscadorZapImoveis.UrlBuscaCoberturas) },
+                { avaliadorCasaMineira, new AvaliacaoRequest("CasaMineira", BuscadorCasaMineira.UrlBuscaImoveis) }
             };
 
             while (!stoppingToken.IsCancellationRequested)

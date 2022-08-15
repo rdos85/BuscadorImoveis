@@ -14,5 +14,6 @@ namespace BuscadorImoveisWorker.Infra
 
         public DbSet<ImovelNetImoveis> ImovelNetImoveis { get; set; }
         public DbSet<ImovelZapImoveis> ImovelZapImoveis { get; set; }
+        public DbSet<ImovelCasaMineira> ImovelCasaMineira { get; set; }
     }
 }
