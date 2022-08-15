@@ -8,6 +8,6 @@ namespace BuscadorImoveisWorker.Servicos
 {
     public interface IAvaliadorImoveis
     {
-        Task<int> ExecutarAsync(AvaliacaoRequest avaliacaoRequest);
+        Task<int> ExecutarAsync(string tipoBusca, string urlBusca);
     }
 }

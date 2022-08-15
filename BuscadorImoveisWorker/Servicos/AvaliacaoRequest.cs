@@ -8,13 +8,15 @@ namespace BuscadorImoveisWorker.Servicos
 {
     public class AvaliacaoRequest
     {
-        public AvaliacaoRequest(string tiposImoveis, string urlBusca)
+        public AvaliacaoRequest(string tiposImoveis, IAvaliadorImoveis avaliadorImoveis, string urlBusca)
         {
             TiposImoveis = tiposImoveis;
+            AvaliadorImoveis = avaliadorImoveis;
             UrlBusca = urlBusca;
         }
 
         public string TiposImoveis { get; set; }
+        public IAvaliadorImoveis AvaliadorImoveis { get; set; }
         public string UrlBusca { get; set; }
     }
 }

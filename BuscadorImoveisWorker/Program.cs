@@ -8,9 +8,11 @@ using Microsoft.Extensions.Options;
 using Telegram.Bot;
 
 IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
+    .ConfigureServices((context, services) =>
     {
         services.AddHostedService<Worker>();
+        services.AddSingleton(context.Configuration.GetSection("TelegramConfig").Get<TelegramConfig>());
+        services.AddSingleton(context.Configuration.GetSection("BuscaConfig").Get<IEnumerable<BuscaConfig>>());
         services.AddSingleton<BuscadorNetImoveis>();
         services.AddSingleton<BuscadorZapImoveis>();
         services.AddSingleton<BuscadorCasaMineira>();

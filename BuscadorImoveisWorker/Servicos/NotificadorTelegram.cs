@@ -10,22 +10,21 @@ namespace BuscadorImoveisWorker.Servicos
 {
     public class NotificadorTelegram
     {
-        //private readonly IOptions<TelegramConfig> telegramConfigOptions;
-        private readonly IConfiguration configuration;
+        private readonly TelegramConfig telegramConfig;
         private readonly TelegramBotClient telegramBotClient;
         
         private readonly ChatId grupoCoberturaChatId;
         private readonly ChatId chatLogId;
         private readonly AsyncPolicy retryPolicy;
 
-        public NotificadorTelegram(IConfiguration configuration, TelegramBotClient telegramBotClient)
+        public NotificadorTelegram(TelegramConfig telegramConfig, TelegramBotClient telegramBotClient)
         {
-            //this.telegramConfigOptions = telegramConfigOptions;
-            this.configuration = configuration;
+            this.telegramConfig = telegramConfig;
             this.telegramBotClient = telegramBotClient;
 
-            grupoCoberturaChatId = new ChatId(configuration.GetValue<string>("TelegramConfig:GrupoNotificacaoId"));
-            chatLogId = new ChatId(configuration.GetValue<string>("TelegramConfig:ChatLogId"));
+            grupoCoberturaChatId = new ChatId(telegramConfig.GrupoNotificacaoId);
+            chatLogId = new ChatId(telegramConfig.ChatLogId);
+
             retryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(3, (retryCount) => TimeSpan.FromSeconds(Math.Pow(2, retryCount)));
         }
 
@@ -34,7 +33,7 @@ namespace BuscadorImoveisWorker.Servicos
             if (!novidades.Any())
                 return;
 
-            string mensagem = $"*** ENCONTRADOS [{tipoImoveis}] ***\n\n";
+            string mensagem = $"ENCONTRADOS EM [{tipoImoveis}]\n\n";
 
             foreach (var imovel in novidades)
                 mensagem += $"\n• {imovel.CriarMensagemTelegram()}\n";

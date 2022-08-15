@@ -15,7 +15,6 @@ namespace BuscadorImoveisWorker.Buscadores
 {
     public class BuscadorNetImoveis
     {
-        public const string UrlBuscaCoberturas = $"https://www.netimoveis.com/locacao/minas-gerais/belo-horizonte/cobertura?tipo=cobertura&transacao=locacao&localizacao=BR-MG-belo-horizonte---&quartos=3&vagas=2&order=desc&valorMax=5000&pagina=1";
         public const string Origem = "NetImoveis";
         public const string BaseUrl = "https://www.netimoveis.com";
 

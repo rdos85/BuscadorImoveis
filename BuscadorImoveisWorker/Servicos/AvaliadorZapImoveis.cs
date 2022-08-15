@@ -22,9 +22,9 @@ namespace BuscadorImoveisWorker.Servicos
             this.notificadorTelegram = notificadorTelegram;
         }
 
-        public async Task<int> ExecutarAsync(AvaliacaoRequest avaliacaoRequest)
+        public async Task<int> ExecutarAsync(string tipoBusca, string urlBusca)
         {
-            var imoveisEncontrados = await buscadorZapImoveis.BuscarImoveisAsync(avaliacaoRequest.TiposImoveis, avaliacaoRequest.UrlBusca);
+            var imoveisEncontrados = await buscadorZapImoveis.BuscarImoveisAsync(tipoBusca, urlBusca);
 
             var novidades = new List<ImovelZapImoveis>();
             foreach (var imovelEncontrado in imoveisEncontrados)
@@ -44,7 +44,7 @@ namespace BuscadorImoveisWorker.Servicos
                 imoveisDbContext.SaveChanges();
             }
 
-            await NotificarNovidadesAsync(avaliacaoRequest.TiposImoveis, novidades);
+            await NotificarNovidadesAsync(tipoBusca, novidades);
 
             return novidades.Count();
         }
@@ -60,7 +60,7 @@ namespace BuscadorImoveisWorker.Servicos
 
         private async Task NotificarNovidadesAsync(string tipoImoveis, IEnumerable<IImovel> novidadesZapImoveis)
         {
-            Console.WriteLine($"Foram encontrados [{novidadesZapImoveis.Count()}] novos imóveis em [{BuscadorZapImoveis.Origem}]");
+            Console.WriteLine($"Foram encontrados [{novidadesZapImoveis.Count()}] novos imóveis em [{tipoImoveis}]");
 
             foreach (var item in novidadesZapImoveis)
                 Console.WriteLine($"{item.Titulo} - {item.Endereco} | {item.ValorAluguel} {item.ValorCondominio}");

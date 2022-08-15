@@ -1,22 +1,26 @@
 using BuscadorImoveisWorker.Buscadores;
+using BuscadorImoveisWorker.Config;
 using BuscadorImoveisWorker.Servicos;
+using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace BuscadorImoveisWorker
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly AvaliadorNetImoveis avaliadorNetImoveis;
-        private readonly AvaliadorZapImoveis avaliadorZapImoveis;
-        private readonly AvaliadorCasaMineira avaliadorCasaMineira;
+        private readonly IEnumerable<BuscaConfig> buscasConfig;
+        private readonly IServiceProvider serviceProvider;
+        //private readonly AvaliadorNetImoveis avaliadorNetImoveis;
+        //private readonly AvaliadorZapImoveis avaliadorZapImoveis;
+        //private readonly AvaliadorCasaMineira avaliadorCasaMineira;
         private readonly NotificadorTelegram notificadorTelegram;
 
-        public Worker(ILogger<Worker> logger, AvaliadorNetImoveis avaliadorNetImoveis, AvaliadorZapImoveis avaliadorZapImoveis, AvaliadorCasaMineira avaliadorCasaMineira, NotificadorTelegram notificadorTelegram)
+        public Worker(ILogger<Worker> logger, IEnumerable<BuscaConfig> buscasConfig, IServiceProvider serviceProvider, NotificadorTelegram notificadorTelegram)
         {
             _logger = logger;
-            this.avaliadorNetImoveis = avaliadorNetImoveis;
-            this.avaliadorZapImoveis = avaliadorZapImoveis;
-            this.avaliadorCasaMineira = avaliadorCasaMineira;
+            this.buscasConfig = buscasConfig;
+            this.serviceProvider = serviceProvider;
             this.notificadorTelegram = notificadorTelegram;
         }
 
@@ -26,42 +30,40 @@ namespace BuscadorImoveisWorker
 
             TimeSpan intervaloBuscas = TimeSpan.FromMinutes(30);
 
-            var avaliacoesParaFazer = new Dictionary<IAvaliadorImoveis, AvaliacaoRequest>()
+            var avaliacoesParaFazer = new List<AvaliacaoRequest>();
+            foreach (var busca in buscasConfig)
             {
-                { avaliadorNetImoveis, new AvaliacaoRequest("NetImoveis Coberturas", BuscadorNetImoveis.UrlBuscaCoberturas) },
-                { avaliadorZapImoveis, new AvaliacaoRequest("ZapImoveis Coberturas", BuscadorZapImoveis.UrlBuscaCoberturas) },
-                { avaliadorCasaMineira, new AvaliacaoRequest("CasaMineira", BuscadorCasaMineira.UrlBuscaImoveis) }
-            };
+                Type avaliadorType = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.Name.Contains(busca.TipoAvaliador));
+                var avaliador = serviceProvider.GetService(avaliadorType) as IAvaliadorImoveis;
+                avaliacoesParaFazer.Add(new AvaliacaoRequest(busca.IdBusca, avaliador, busca.UrlPesquisa));
+            }
 
             while (!stoppingToken.IsCancellationRequested)
             {
 
                 Console.WriteLine("******************************************************************");
-                Console.WriteLine($"[{DateTime.Now}] INICIANDO NOVA BUSCA...");
+                Console.WriteLine($"[{DateTime.Now}] INICIANDO NOVA RODADA DE BUSCAS...");
                 Console.WriteLine("******************************************************************");
 
                 var relatorioParcial = $"Log de execução de [{DateTime.Now}]";
 
-                foreach (var avaliacao in avaliacoesParaFazer)
+                foreach (var avaliacaoRequest in avaliacoesParaFazer)
                 {
-                    var avaliador = avaliacao.Key;
-                    var request = avaliacao.Value;
-
                     try
                     {
-                        Console.WriteLine($"Iniciando avaliação de [{request.TiposImoveis}]...");
+                        Console.WriteLine($"Iniciando avaliação de [{avaliacaoRequest.TiposImoveis}]...");
 
-                        var totalNovidades = await avaliacao.Key.ExecutarAsync(avaliacao.Value);
+                        var totalNovidades = await avaliacaoRequest.AvaliadorImoveis.ExecutarAsync(avaliacaoRequest.TiposImoveis, avaliacaoRequest.UrlBusca);
 
-                        Console.WriteLine($"Finalizada avaliação de [{request.TiposImoveis}]. Novos imóveis encontrados: {totalNovidades}");
-                        relatorioParcial += $"\n[{request.TiposImoveis}] - Novos Imóveis: {totalNovidades}";
+                        Console.WriteLine($"Finalizada avaliação de [{avaliacaoRequest.TiposImoveis}]. Novos imóveis encontrados: {totalNovidades}");
+                        relatorioParcial += $"\n[{avaliacaoRequest.TiposImoveis}] - Novos Imóveis: {totalNovidades}";
                     }
                     catch (Exception ex)
                     {
-                        var mensagem = $"Falha ao tentar avaliar [{avaliacao.Key}]: {ex.Message}";
+                        var mensagem = $"Falha ao tentar avaliar [{avaliacaoRequest.TiposImoveis}]: {ex.Message}";
                         Console.WriteLine(mensagem);
                         await notificadorTelegram.NotificarChatLog(mensagem);
-                        relatorioParcial += $"\n[{request.TiposImoveis}] - Erro: {ex.Message}";
+                        relatorioParcial += $"\n[{avaliacaoRequest.TiposImoveis}] - Erro: {ex.Message}";
                     }
                 }
 

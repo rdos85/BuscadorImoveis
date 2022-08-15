@@ -18,7 +18,6 @@ namespace BuscadorImoveisWorker.Buscadores
     public class BuscadorZapImoveis
     {
         public const string Origem = "ZapImoveis";
-        public const string UrlBuscaCoberturas = @"https://www.zapimoveis.com.br/aluguel/cobertura/mg+belo-horizonte/3-quartos/?onde=,Minas%20Gerais,Belo%20Horizonte,,,,,city,BR%3EMinas%20Gerais%3ENULL%3EBelo%20Horizonte,-19.919052,-43.938669,%2Faluguel%2Fcobertura%2Fmg%2Bbelo-horizonte%2F3-quartos%2F&transacao=Aluguel&tipo=Im%C3%B3vel%20usado&precoMaximo=5000&quartos=3&vagas=2&tipoUnidade=Residencial,Cobertura&ordem=Mais%20recente";
         public const string BaseUrl = "https://www.zapimoveis.com.br";
 
         public async Task<List<ImovelZapImoveis>> BuscarImoveisAsync(string tipoBusca, string url)

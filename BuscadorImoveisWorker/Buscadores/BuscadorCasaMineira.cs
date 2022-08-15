@@ -12,7 +12,6 @@ namespace BuscadorImoveisWorker.Buscadores
 {
     public class BuscadorCasaMineira
     {
-        public const string UrlBuscaImoveis = $"https://www.casamineira.com.br/aluguel/apartamento/belo-horizonte_mg/3-quartos+2-banheiros+2-vagas+ordem-mais-recente+preco-minimo-2000+preco-maximo-5000";
         public const string Origem = "Casa Mineira";
         public const string BaseUrl = "https://www.casamineira.com.br";
 
