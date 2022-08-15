@@ -23,6 +23,7 @@ namespace BuscadorImoveisWorker.Buscadores
             var imoveis = new List<ImovelNetImoveis>();
 
             using var chrome = new ChromeDriver(@"C:\chromedriver");
+            chrome.Manage().Window.Maximize();
             try
             {
                 Console.WriteLine($"Iniciando buscas em [{Origem}] por [{tipoBusca}]...");
