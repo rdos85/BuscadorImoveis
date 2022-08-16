@@ -30,6 +30,9 @@ namespace BuscadorImoveisWorker.Servicos
 
         public async Task NotificarGrupoNovidades(string tipoImoveis, IEnumerable<IImovel> novidades)
         {
+            if (!telegramConfig.DisparoNovidadesAtivo)
+                return;
+
             if (!novidades.Any())
                 return;
 
@@ -47,6 +50,9 @@ namespace BuscadorImoveisWorker.Servicos
 
         public async Task NotificarChatLog(string mensagem)
         {
+            if (!telegramConfig.DisparoLogsAtivo)
+                return;
+
             var sendMessageRequest = new SendMessageRequest(chatLogId, mensagem);
             _ = await retryPolicy.ExecuteAsync(async () => _ = await telegramBotClient.MakeRequestAsync(sendMessageRequest));
         }

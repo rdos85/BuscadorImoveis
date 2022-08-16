@@ -11,5 +11,7 @@ namespace BuscadorImoveisWorker.Config
         public string Token { get; set; }
         public string ChatLogId { get; set; }
         public string GrupoNotificacaoId { get; set; }
+        public bool DisparoNovidadesAtivo { get; set; }
+        public bool DisparoLogsAtivo { get; set; }
     }
 }
