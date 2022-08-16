@@ -25,7 +25,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             var configuration = services.GetService<IConfiguration>();
             return new TelegramBotClient(configuration.GetValue<string>("TelegramConfig:Token"));
         });
-        services.AddDbContext<ImoveisDbContext>(op => op.UseSqlServer("Server=::1,1433;Database=master;User Id=SA;Password=Senha01*;"),
+        services.AddDbContext<ImoveisDbContext>(op => op.UseSqlServer(context.Configuration.GetConnectionString("SqlServer")),
                                                       ServiceLifetime.Singleton);
     })
     .Build();

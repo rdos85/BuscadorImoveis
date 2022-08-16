@@ -11,24 +11,25 @@ namespace BuscadorImoveisWorker
         private readonly ILogger<Worker> _logger;
         private readonly IEnumerable<BuscaConfig> buscasConfig;
         private readonly IServiceProvider serviceProvider;
-        //private readonly AvaliadorNetImoveis avaliadorNetImoveis;
-        //private readonly AvaliadorZapImoveis avaliadorZapImoveis;
-        //private readonly AvaliadorCasaMineira avaliadorCasaMineira;
         private readonly NotificadorTelegram notificadorTelegram;
+        private readonly IConfiguration configuration;
 
-        public Worker(ILogger<Worker> logger, IEnumerable<BuscaConfig> buscasConfig, IServiceProvider serviceProvider, NotificadorTelegram notificadorTelegram)
+        public Worker(ILogger<Worker> logger, IEnumerable<BuscaConfig> buscasConfig, IServiceProvider serviceProvider, NotificadorTelegram notificadorTelegram, IConfiguration configuration)
         {
             _logger = logger;
             this.buscasConfig = buscasConfig;
             this.serviceProvider = serviceProvider;
             this.notificadorTelegram = notificadorTelegram;
+            this.configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             LogInicio();
 
-            TimeSpan intervaloBuscas = TimeSpan.FromMinutes(30);
+            var intervaloEntreBuscas = configuration.GetValue<int>("IntervaloEntreBuscasMinutos");
+
+            TimeSpan intervaloBuscas = TimeSpan.FromMinutes(intervaloEntreBuscas);
 
             var avaliacoesParaFazer = new List<AvaliacaoRequest>();
             foreach (var busca in buscasConfig)

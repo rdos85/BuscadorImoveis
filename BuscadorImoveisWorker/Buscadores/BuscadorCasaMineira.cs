@@ -62,8 +62,8 @@ namespace BuscadorImoveisWorker.Buscadores
                         {
                             Id = id,
                             Link = link,
-                            Titulo = rua,
-                            Endereco = rua + ", " + bairro,
+                            Titulo = $"{id} - {rua} - {bairro}",
+                            Endereco = $"{rua}, {bairro}",
                             Quartos = quartos,
                             Vagas = vagas,
                             ValorAluguel = valorAluguel,

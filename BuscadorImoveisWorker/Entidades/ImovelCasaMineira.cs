@@ -21,7 +21,7 @@ namespace BuscadorImoveisWorker.Entidades
 
         public string CriarMensagemTelegram()
         {
-            throw new NotImplementedException();
+            return $"<a href='{Link}'>{Titulo} - {Endereco} - {ValorAluguel} {ValorCondominio}</a>";
         }
     }
 }
