@@ -11,6 +11,7 @@ namespace BuscadorImoveisWorker.Config
         public string IdBusca { get; set; }
         public string TipoAvaliador { get; set; }
         public string UrlPesquisa { get; set; }
-        
+        public bool Ativo { get; set; }
+
     }
 }

@@ -32,7 +32,7 @@ namespace BuscadorImoveisWorker
             TimeSpan intervaloBuscas = TimeSpan.FromMinutes(intervaloEntreBuscas);
 
             var avaliacoesParaFazer = new List<AvaliacaoRequest>();
-            foreach (var busca in buscasConfig)
+            foreach (var busca in buscasConfig.Where(b => b.Ativo))
             {
                 Type avaliadorType = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.Name.Contains(busca.TipoAvaliador));
                 var avaliador = serviceProvider.GetService(avaliadorType) as IAvaliadorImoveis;

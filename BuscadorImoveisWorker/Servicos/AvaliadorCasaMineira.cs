@@ -40,7 +40,8 @@ namespace BuscadorImoveisWorker.Servicos
                 else if (MudouPreco(dadosImovelAtual, imovelEncontrado))
                 {
                     novidades.Add(imovelEncontrado);
-                    dadosImovelAtual = imovelEncontrado;
+                    dadosImovelAtual.ValorAluguel = imovelEncontrado.ValorAluguel;
+                    dadosImovelAtual.ValorCondominio = imovelEncontrado.ValorCondominio;
                 }
 
                 imoveisDbContext.SaveChanges();
