@@ -13,14 +13,15 @@ using System.Threading.Tasks;
 
 namespace BuscadorImoveisWorker.Buscadores
 {
-    public class BuscadorNetImoveis
+    public class BuscadorNetImoveis : IBuscadorImoveis
     {
-        public const string Origem = "NetImoveis";
         public const string BaseUrl = "https://www.netimoveis.com";
 
-        public async Task<IList<ImovelNetImoveis>> BuscarImoveisAsync(string tipoBusca, string url)
+        public string Origem => "NetImoveis";
+
+        public async Task<IList<Imovel>> BuscarImoveisAsync(string tipoBusca, string url)
         {
-            var imoveis = new List<ImovelNetImoveis>();
+            var imoveis = new List<Imovel>();
 
             using var chrome = new ChromeDriver(@"C:\chromedriver");
             chrome.Manage().Window.Maximize();
@@ -58,17 +59,18 @@ namespace BuscadorImoveisWorker.Buscadores
                         if (elementCondominio.Any())
                             valorCondominio = elementCondominio[0].TextContent.LimparString();
 
-                        imoveis.Add(new ImovelNetImoveis
+                        imoveis.Add(new Imovel
                         {
-                            Origem = Origem,
                             Id = idImovel,
+                            Origem = Origem,
                             Link = BaseUrl + href,
                             Titulo = titulo,
                             Endereco = endereco,
                             Quartos = quartos,
                             Vagas = vagas,
                             ValorAluguel = valorAluguel,
-                            ValorCondominio = valorCondominio
+                            ValorCondominio = valorCondominio,
+                            Iptu = "Não Informado"
                         });
                     }
 

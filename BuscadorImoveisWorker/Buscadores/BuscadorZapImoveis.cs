@@ -15,14 +15,15 @@ using BuscadorImoveisWorker.Entidades;
 
 namespace BuscadorImoveisWorker.Buscadores
 {
-    public class BuscadorZapImoveis
+    public class BuscadorZapImoveis : IBuscadorImoveis
     {
-        public const string Origem = "ZapImoveis";
         public const string BaseUrl = "https://www.zapimoveis.com.br";
 
-        public async Task<List<ImovelZapImoveis>> BuscarImoveisAsync(string tipoBusca, string url)
+        public string Origem => "ZapImoveis";
+
+        public async Task<IList<Imovel>> BuscarImoveisAsync(string tipoBusca, string url)
         {
-            var imoveis = new List<ImovelZapImoveis>();
+            var imoveis = new List<Imovel>();
 
             using var chrome = new ChromeDriver(@"C:\chromedriver");
             Actions action = new Actions(chrome);
@@ -73,8 +74,10 @@ namespace BuscadorImoveisWorker.Buscadores
                         var quartos = detalhlesElements[3].TextContent.LimparString();
                         var vagas = detalhlesElements[5].TextContent.LimparString();
 
-                        var imovel = new ImovelZapImoveis
+                        var imovel = new Imovel
                         {
+                            Origem = Origem,
+                            Link = "",
                             Titulo = titulo,
                             Endereco = endereco,
                             ValorAluguel = valorAluguel,
@@ -84,8 +87,7 @@ namespace BuscadorImoveisWorker.Buscadores
                             Vagas = vagas
                         };
 
-                        imovel.CriarId();
-                        imovel.CriarLink();
+                        CriarIdImovel(imovel);
 
                         imoveis.Add(imovel);
                     }
@@ -131,6 +133,16 @@ namespace BuscadorImoveisWorker.Buscadores
 
             if (aceiteCookiesButtons.Any())
                 aceiteCookiesButtons[0].Click();
+        }
+
+        private void CriarIdImovel(Imovel imovel)
+        {
+            var imovelJson = System.Text.Json.JsonSerializer.Serialize(imovel);
+            var stringId = Encoding.UTF8.GetBytes(imovelJson);
+            var idBytes = SHA256.Create().ComputeHash(stringId);
+            var idString = Encoding.UTF8.GetString(idBytes);
+
+            imovel.Id = idString;
         }
     }
 }

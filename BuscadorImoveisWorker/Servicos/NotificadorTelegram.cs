@@ -28,7 +28,7 @@ namespace BuscadorImoveisWorker.Servicos
             retryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(3, (retryCount) => TimeSpan.FromSeconds(Math.Pow(2, retryCount)));
         }
 
-        public async Task NotificarGrupoNovidades(string tipoImoveis, IEnumerable<IImovel> novidades)
+        public async Task NotificarGrupoNovidades(string tipoImoveis, IEnumerable<Imovel> novidades)
         {
             if (!telegramConfig.DisparoNovidadesAtivo)
                 return;

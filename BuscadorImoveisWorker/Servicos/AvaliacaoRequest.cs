@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BuscadorImoveisWorker.Buscadores;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,15 +9,15 @@ namespace BuscadorImoveisWorker.Servicos
 {
     public class AvaliacaoRequest
     {
-        public AvaliacaoRequest(string tiposImoveis, IAvaliadorImoveis avaliadorImoveis, string urlBusca)
+        public AvaliacaoRequest(IBuscadorImoveis buscadorImoveis, string tiposImoveis, string urlBusca)
         {
+            BuscadorImoveis = buscadorImoveis;
             TiposImoveis = tiposImoveis;
-            AvaliadorImoveis = avaliadorImoveis;
             UrlBusca = urlBusca;
         }
 
+        public IBuscadorImoveis BuscadorImoveis { get; set; }
         public string TiposImoveis { get; set; }
-        public IAvaliadorImoveis AvaliadorImoveis { get; set; }
         public string UrlBusca { get; set; }
     }
 }

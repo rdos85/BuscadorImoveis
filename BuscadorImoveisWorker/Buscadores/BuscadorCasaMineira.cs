@@ -10,14 +10,15 @@ using System.Threading.Tasks;
 
 namespace BuscadorImoveisWorker.Buscadores
 {
-    public class BuscadorCasaMineira
+    public class BuscadorCasaMineira : IBuscadorImoveis
     {
-        public const string Origem = "Casa Mineira";
         public const string BaseUrl = "https://www.casamineira.com.br";
 
-        public async Task<IList<ImovelCasaMineira>> BuscarImoveisAsync(string tipoBusca, string url)
+        public string Origem => "Casa Mineira";
+
+        public async Task<IList<Imovel>> BuscarImoveisAsync(string tipoBusca, string url)
         {
-            var imoveis = new List<ImovelCasaMineira>();
+            var imoveis = new List<Imovel>();
 
             using var chrome = new ChromeDriver(@"C:\chromedriver");
             try
@@ -58,16 +59,18 @@ namespace BuscadorImoveisWorker.Buscadores
                         var banheiros = detalhesElementSpan[3].GetElementsByTagName("span")[0].TextContent;
                         var vagas = detalhesElementSpan[4].GetElementsByTagName("span")[0].TextContent;
 
-                        imoveis.Add(new ImovelCasaMineira
+                        imoveis.Add(new Imovel
                         {
                             Id = id,
+                            Origem = Origem,
                             Link = link,
                             Titulo = $"{id} - {rua} - {bairro}",
                             Endereco = $"{rua}, {bairro}",
                             Quartos = quartos,
                             Vagas = vagas,
                             ValorAluguel = valorAluguel,
-                            ValorCondominio = valorCondominio
+                            ValorCondominio = valorCondominio,
+                            Iptu = "Não informado"
                         });
                     }
 

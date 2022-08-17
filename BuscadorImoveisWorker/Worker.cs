@@ -13,14 +13,16 @@ namespace BuscadorImoveisWorker
         private readonly IServiceProvider serviceProvider;
         private readonly NotificadorTelegram notificadorTelegram;
         private readonly IConfiguration configuration;
+        private readonly AvaliadorImoveis avaliadorImoveis;
 
-        public Worker(ILogger<Worker> logger, IEnumerable<BuscaConfig> buscasConfig, IServiceProvider serviceProvider, NotificadorTelegram notificadorTelegram, IConfiguration configuration)
+        public Worker(ILogger<Worker> logger, IEnumerable<BuscaConfig> buscasConfig, IServiceProvider serviceProvider, NotificadorTelegram notificadorTelegram, IConfiguration configuration, AvaliadorImoveis avaliadorImoveis)
         {
             _logger = logger;
             this.buscasConfig = buscasConfig;
             this.serviceProvider = serviceProvider;
             this.notificadorTelegram = notificadorTelegram;
             this.configuration = configuration;
+            this.avaliadorImoveis = avaliadorImoveis;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,9 +36,9 @@ namespace BuscadorImoveisWorker
             var avaliacoesParaFazer = new List<AvaliacaoRequest>();
             foreach (var busca in buscasConfig.Where(b => b.Ativo))
             {
-                Type avaliadorType = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.Name.Contains(busca.TipoAvaliador));
-                var avaliador = serviceProvider.GetService(avaliadorType) as IAvaliadorImoveis;
-                avaliacoesParaFazer.Add(new AvaliacaoRequest(busca.IdBusca, avaliador, busca.UrlPesquisa));
+                Type buscadorImoveisType = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.Name.Contains(busca.TipoBuscadorImoveis));
+                var buscadorImoveis = serviceProvider.GetService(buscadorImoveisType) as IBuscadorImoveis;
+                avaliacoesParaFazer.Add(new AvaliacaoRequest(buscadorImoveis, busca.IdBusca, busca.UrlPesquisa));
             }
 
             while (!stoppingToken.IsCancellationRequested)
@@ -54,7 +56,7 @@ namespace BuscadorImoveisWorker
                     {
                         Console.WriteLine($"Iniciando avaliação de [{avaliacaoRequest.TiposImoveis}]...");
 
-                        var totalNovidades = await avaliacaoRequest.AvaliadorImoveis.ExecutarAsync(avaliacaoRequest.TiposImoveis, avaliacaoRequest.UrlBusca);
+                        var totalNovidades = await avaliadorImoveis.ExecutarAsync(avaliacaoRequest);
 
                         Console.WriteLine($"Finalizada avaliação de [{avaliacaoRequest.TiposImoveis}]. Novos imóveis encontrados: {totalNovidades}");
                         relatorioParcial += $"\n[{avaliacaoRequest.TiposImoveis}] - Novos Imóveis: {totalNovidades}";

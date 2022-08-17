@@ -9,48 +9,48 @@ using System.Threading.Tasks;
 
 namespace BuscadorImoveisWorker.Servicos
 {
-    public class AvaliadorVivaReal : IAvaliadorImoveis
+    public class AvaliadorImoveis
     {
-        private readonly BuscadorVivaReal buscadorVivaReal;
         private readonly ImoveisDbContext imoveisDbContext;
         private readonly NotificadorTelegram notificadorTelegram;
 
-        public AvaliadorVivaReal(BuscadorVivaReal buscadorVivaReal, ImoveisDbContext imoveisDbContext, NotificadorTelegram notificadorTelegram)
+        public AvaliadorImoveis(ImoveisDbContext imoveisDbContext, NotificadorTelegram notificadorTelegram)
         {
-            this.buscadorVivaReal = buscadorVivaReal;
             this.imoveisDbContext = imoveisDbContext;
             this.notificadorTelegram = notificadorTelegram;
         }
 
-        public async Task<int> ExecutarAsync(string tipoBusca, string urlBusca)
+        public async Task<int> ExecutarAsync(AvaliacaoRequest avaliacaoRequest)
         {
-            var imoveisEncontrados = await buscadorVivaReal.BuscarImoveisAsync(tipoBusca, urlBusca);
+            var imoveisEncontrados = await avaliacaoRequest.BuscadorImoveis.BuscarImoveisAsync(avaliacaoRequest.TiposImoveis, avaliacaoRequest.UrlBusca);
 
-            var novidades = new List<ImovelVivaReal>();
+            var novidades = new List<Imovel>();
             foreach (var imovelEncontrado in imoveisEncontrados)
             {
-                var dadosImovelAtual = imoveisDbContext.ImovelVivaReal.Where(i => i.Id == imovelEncontrado.Id).FirstOrDefault();
+                var dadosImovelAtual = imoveisDbContext.Imovel.Where(i => i.Id == imovelEncontrado.Id && i.Origem == imovelEncontrado.Origem).FirstOrDefault();
                 if (dadosImovelAtual == null)
                 {
-                    imoveisDbContext.ImovelVivaReal.Add(imovelEncontrado);
+                    imovelEncontrado.DataInclusao = DateTime.Now;
+                    imoveisDbContext.Imovel.Add(imovelEncontrado);
                     novidades.Add(imovelEncontrado);
                 }
                 else if (MudouPreco(dadosImovelAtual, imovelEncontrado))
                 {
-                    novidades.Add(imovelEncontrado);
+                    dadosImovelAtual.DataModificacao = DateTime.Now;
                     dadosImovelAtual.ValorAluguel = imovelEncontrado.ValorAluguel;
                     dadosImovelAtual.ValorCondominio = imovelEncontrado.ValorCondominio;
+                    novidades.Add(imovelEncontrado);
                 }
 
                 imoveisDbContext.SaveChanges();
             }
 
-            await NotificarNovidadesAsync(tipoBusca, novidades);
+            await NotificarNovidadesAsync(avaliacaoRequest.TiposImoveis, novidades);
 
             return novidades.Count();
         }
 
-        private bool MudouPreco(ImovelVivaReal valorAnterior, ImovelVivaReal valorAtual)
+        private bool MudouPreco(Imovel valorAnterior, Imovel valorAtual)
         {
             if (valorAnterior.ValorAluguel != valorAtual.ValorAluguel ||
                 valorAnterior.ValorCondominio != valorAtual.ValorCondominio)
@@ -59,7 +59,7 @@ namespace BuscadorImoveisWorker.Servicos
             return false;
         }
 
-        private async Task NotificarNovidadesAsync(string tipoImoveis, IEnumerable<IImovel> novidadesNetImoveis)
+        private async Task NotificarNovidadesAsync(string tipoImoveis, IEnumerable<Imovel> novidadesNetImoveis)
         {
             Console.WriteLine($"Foram encontrados [{novidadesNetImoveis.Count()}] novos imóveis em [{tipoImoveis}]");
 

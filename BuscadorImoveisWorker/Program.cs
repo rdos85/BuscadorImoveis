@@ -13,14 +13,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker>();
         services.AddSingleton(context.Configuration.GetSection("TelegramConfig").Get<TelegramConfig>());
         services.AddSingleton(context.Configuration.GetSection("BuscaConfig").Get<IEnumerable<BuscaConfig>>());
+        services.AddSingleton<AvaliadorImoveis>();
         services.AddSingleton<BuscadorNetImoveis>();
         services.AddSingleton<BuscadorZapImoveis>();
         services.AddSingleton<BuscadorCasaMineira>();
         services.AddSingleton<BuscadorVivaReal>();
-        services.AddSingleton<AvaliadorNetImoveis>();
-        services.AddSingleton<AvaliadorZapImoveis>();
-        services.AddSingleton<AvaliadorCasaMineira>();
-        services.AddSingleton<AvaliadorVivaReal>();
         services.AddSingleton<NotificadorTelegram>();
         services.AddSingleton<TelegramBotClient>(services =>
         {

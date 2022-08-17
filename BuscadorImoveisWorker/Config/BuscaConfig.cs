@@ -9,7 +9,7 @@ namespace BuscadorImoveisWorker.Config
     public class BuscaConfig
     {
         public string IdBusca { get; set; }
-        public string TipoAvaliador { get; set; }
+        public string TipoBuscadorImoveis { get; set; }
         public string UrlPesquisa { get; set; }
         public bool Ativo { get; set; }
 

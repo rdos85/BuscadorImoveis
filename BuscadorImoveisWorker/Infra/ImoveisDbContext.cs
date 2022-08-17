@@ -11,10 +11,11 @@ namespace BuscadorImoveisWorker.Infra
         public ImoveisDbContext(DbContextOptions options) : base(options)
         {
         }
+        public DbSet<Imovel> Imovel { get; set; }
 
-        public DbSet<ImovelNetImoveis> ImovelNetImoveis { get; set; }
-        public DbSet<ImovelZapImoveis> ImovelZapImoveis { get; set; }
-        public DbSet<ImovelCasaMineira> ImovelCasaMineira { get; set; }
-        public DbSet<ImovelVivaReal> ImovelVivaReal { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Imovel>().HasKey(x => new { x.Id, x.Origem });
+        }
     }
 }

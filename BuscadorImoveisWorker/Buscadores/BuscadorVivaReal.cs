@@ -13,14 +13,15 @@ using System.Threading.Tasks;
 
 namespace BuscadorImoveisWorker.Buscadores
 {
-    public class BuscadorVivaReal
+    public class BuscadorVivaReal : IBuscadorImoveis
     {
-        public const string Origem = "Viva Real";
         public const string UrlBase = @"https://www.vivareal.com.br";
 
-        public async Task<IList<ImovelVivaReal>> BuscarImoveisAsync(string tipoBusca, string url)
+        public string Origem => "Viva Real";
+
+        public async Task<IList<Imovel>> BuscarImoveisAsync(string tipoBusca, string url)
         {
-            IList<ImovelVivaReal> imoveis = new List<ImovelVivaReal>();
+            var imoveis = new List<Imovel>();
 
             using var chrome = new ChromeDriver(@"C:\chromedriver");
 
@@ -64,16 +65,18 @@ namespace BuscadorImoveisWorker.Buscadores
                         if (dadosElement.GetElementsByClassName("property-card__price-details--condo").Any())
                             valorCondominio = dadosElement.GetElementsByClassName("property-card__price-details--condo")[0].TextContent.Trim();
 
-                        var imovel = new ImovelVivaReal
+                        var imovel = new Imovel
                         {
                             Id = id,
+                            Origem = Origem,
                             Link = link,
                             Endereco = endereco.LimparString(),
                             Quartos = quartos.LimparString(),
                             Vagas = vagas.LimparString(),
                             Titulo = titulo.LimparString(),
                             ValorAluguel = valorAluguel.LimparString(),
-                            ValorCondominio = valorCondominio.LimparString()
+                            ValorCondominio = valorCondominio.LimparString(),
+                            Iptu = "Não informado"
                         };
 
                         imoveis.Add(imovel);
