@@ -76,8 +76,6 @@ namespace BuscadorImoveisWorker.Buscadores
                         };
 
                         imoveis.Add(imovel);
-
-                        Console.WriteLine(imovel.Link);
                     }
 
                     // Tenta avançar para próxima página.
@@ -94,6 +92,7 @@ namespace BuscadorImoveisWorker.Buscadores
                     await Task.Delay(TimeSpan.FromSeconds(5));
                 }
                 
+                Console.WriteLine($"Encontrados [{imoveis.Count}] imóveis em [{Origem}]...");
                 return imoveis;
             }
             catch (Exception ex)
