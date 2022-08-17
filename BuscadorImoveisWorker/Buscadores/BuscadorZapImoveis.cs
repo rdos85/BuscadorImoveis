@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using BuscadorImoveisWorker.Util;
 using BuscadorImoveisWorker.Entidades;
+using System.IO.Compression;
 
 namespace BuscadorImoveisWorker.Buscadores
 {
@@ -137,12 +138,34 @@ namespace BuscadorImoveisWorker.Buscadores
 
         private void CriarIdImovel(Imovel imovel)
         {
-            var imovelJson = System.Text.Json.JsonSerializer.Serialize(imovel);
-            var stringId = Encoding.UTF8.GetBytes(imovelJson);
-            var idBytes = SHA256.Create().ComputeHash(stringId);
-            var idString = Encoding.UTF8.GetString(idBytes);
+            var imovelString = $"{imovel.Titulo}{imovel.Endereco}{imovel.ValorAluguel}{imovel.ValorCondominio}{imovel.Vagas}";
 
-            imovel.Id = idString;
+            var id = Compress(imovelString);
+            imovel.Id = id;
+        }
+
+        private static string Compress(string uncompressedString)
+        {
+            byte[] compressedBytes;
+
+            using (var uncompressedStream = new MemoryStream(Encoding.UTF8.GetBytes(uncompressedString)))
+            {
+                using (var compressedStream = new MemoryStream())
+                {
+                    // setting the leaveOpen parameter to true to ensure that compressedStream will not be closed when compressorStream is disposed
+                    // this allows compressorStream to close and flush its buffers to compressedStream and guarantees that compressedStream.ToArray() can be called afterward
+                    // although MSDN documentation states that ToArray() can be called on a closed MemoryStream, I don't want to rely on that very odd behavior should it ever change
+                    using (var compressorStream = new DeflateStream(compressedStream, CompressionLevel.Optimal, true))
+                    {
+                        uncompressedStream.CopyTo(compressorStream);
+                    }
+
+                    // call compressedStream.ToArray() after the enclosing DeflateStream has closed and flushed its buffer to compressedStream
+                    compressedBytes = compressedStream.ToArray();
+                }
+            }
+
+            return Convert.ToBase64String(compressedBytes);
         }
     }
 }
