@@ -88,6 +88,7 @@ namespace BuscadorImoveisWorker.Buscadores
                         break;
                 }
 
+                Console.WriteLine($"Encontrados [{imoveis.Count}] imóveis em [{Origem}]...");
                 return imoveis;
             }
             catch (Exception ex)

@@ -100,6 +100,7 @@ namespace BuscadorImoveisWorker.Buscadores
                     await Task.Delay(5000);
                 }
 
+                Console.WriteLine($"Encontrados [{imoveis.Count}] imóveis em [{Origem}]...");
                 return imoveis;
             }
             catch (Exception ex)
