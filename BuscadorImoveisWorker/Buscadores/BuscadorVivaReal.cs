@@ -3,6 +3,7 @@ using AngleSharp.Html.Parser;
 using BuscadorImoveisWorker.Entidades;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using BuscadorImoveisWorker.Util;
 using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
@@ -67,12 +68,12 @@ namespace BuscadorImoveisWorker.Buscadores
                         {
                             Id = id,
                             Link = link,
-                            Endereco = endereco,
-                            Quartos = quartos,
-                            Vagas = vagas,
-                            Titulo = titulo,
-                            ValorAluguel = valorAluguel,
-                            ValorCondominio = valorCondominio
+                            Endereco = endereco.LimparString(),
+                            Quartos = quartos.LimparString(),
+                            Vagas = vagas.LimparString(),
+                            Titulo = titulo.LimparString(),
+                            ValorAluguel = valorAluguel.LimparString(),
+                            ValorCondominio = valorCondominio.LimparString()
                         };
 
                         imoveis.Add(imovel);

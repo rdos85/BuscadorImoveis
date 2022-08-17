@@ -40,7 +40,7 @@ namespace BuscadorImoveisWorker.Entidades
 
         public string CriarMensagemTelegram()
         {
-            return $"<a href='{Link}'>{Titulo} - {Endereco} - {ValorAluguel} + Condomínio {ValorCondominio} + Iptu {Iptu}</a>";
+            return $"{Titulo} - {Endereco} - {ValorAluguel} + Condomínio {ValorCondominio} + Iptu {Iptu}";
         }
     }
 }
