@@ -18,6 +18,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<BuscadorZapImoveis>();
         services.AddSingleton<BuscadorCasaMineira>();
         services.AddSingleton<BuscadorVivaReal>();
+        services.AddSingleton<BuscadorImovelWeb>();
         services.AddSingleton<NotificadorTelegram>();
         services.AddSingleton<TelegramBotClient>(services =>
         {
