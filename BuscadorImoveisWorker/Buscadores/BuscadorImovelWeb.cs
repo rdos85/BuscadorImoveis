@@ -87,8 +87,6 @@ namespace BuscadorImoveisWorker.Buscadores
                             ValorCondominio = valorCondominio,
                             Iptu = "Não Informado"
                         });
-
-                        Console.WriteLine(endereco);
                     }
 
                     // O site tem algum mecanismo que impede o click no botão "Próxima Página".
