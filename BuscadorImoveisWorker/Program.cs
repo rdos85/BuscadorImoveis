@@ -3,9 +3,11 @@ using BuscadorImoveisWorker.Buscadores;
 using BuscadorImoveisWorker.Config;
 using BuscadorImoveisWorker.Infra;
 using BuscadorImoveisWorker.Servicos;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
+
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
@@ -25,6 +27,11 @@ IHost host = Host.CreateDefaultBuilder(args)
             var configuration = services.GetService<IConfiguration>();
             return new TelegramBotClient(configuration.GetValue<string>("TelegramConfig:Token"));
         });
+        services.AddHangfire(hangfireConfig =>
+        {
+            hangfireConfig.UseSqlServerStorage(context.Configuration.GetConnectionString("SqlServer"));
+        });
+        services.AddHangfireServer();
         services.AddDbContext<ImoveisDbContext>(op => op.UseSqlServer(context.Configuration.GetConnectionString("SqlServer")),
                                                       ServiceLifetime.Singleton);
     })

@@ -1,6 +1,7 @@
 ﻿using BuscadorImoveisWorker.Buscadores;
 using BuscadorImoveisWorker.Entidades;
 using BuscadorImoveisWorker.Infra;
+using Hangfire;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +14,13 @@ namespace BuscadorImoveisWorker.Servicos
     {
         private readonly ImoveisDbContext imoveisDbContext;
         private readonly NotificadorTelegram notificadorTelegram;
+        private readonly IBackgroundJobClient backgroundJobClient;
 
-        public AvaliadorImoveis(ImoveisDbContext imoveisDbContext, NotificadorTelegram notificadorTelegram)
+        public AvaliadorImoveis(ImoveisDbContext imoveisDbContext, NotificadorTelegram notificadorTelegram, IBackgroundJobClient backgroundJobClient)
         {
             this.imoveisDbContext = imoveisDbContext;
             this.notificadorTelegram = notificadorTelegram;
+            this.backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<int> ExecutarAsync(AvaliacaoRequest avaliacaoRequest)
@@ -45,7 +48,7 @@ namespace BuscadorImoveisWorker.Servicos
                 imoveisDbContext.SaveChanges();
             }
 
-            await NotificarNovidadesAsync(avaliacaoRequest.TiposImoveis, novidades);
+            NotificarNovidades(avaliacaoRequest.TiposImoveis, novidades);
 
             return novidades.Count();
         }
@@ -59,14 +62,16 @@ namespace BuscadorImoveisWorker.Servicos
             return false;
         }
 
-        private async Task NotificarNovidadesAsync(string tipoImoveis, IEnumerable<Imovel> novidadesNetImoveis)
+        private void NotificarNovidades(string tipoImoveis, IEnumerable<Imovel> novidadesNetImoveis)
         {
             Console.WriteLine($"Foram encontrados [{novidadesNetImoveis.Count()}] novos imóveis em [{tipoImoveis}]");
 
             foreach (var item in novidadesNetImoveis)
                 Console.WriteLine($"{item.Titulo} - {item.Endereco} | {item.ValorAluguel} {item.ValorCondominio}");
 
-            await notificadorTelegram.NotificarGrupoNovidadesAsync(tipoImoveis, novidadesNetImoveis);
+            var hangfireJob = backgroundJobClient.Enqueue(() => notificadorTelegram.NotificarGrupoNovidadesAsync(tipoImoveis, novidadesNetImoveis));
+
+            Console.WriteLine($"[Hangfire] Solicitado job [{hangfireJob}]");
         }
     }
 }
