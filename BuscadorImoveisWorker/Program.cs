@@ -20,7 +20,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<BuscadorVivaReal>();
         services.AddSingleton<BuscadorImovelWeb>();
         services.AddSingleton<NotificadorTelegram>();
-        services.AddSingleton<TelegramBotClient>(services =>
+        services.AddSingleton<ITelegramBotClient>(services =>
         {
             var configuration = services.GetService<IConfiguration>();
             return new TelegramBotClient(configuration.GetValue<string>("TelegramConfig:Token"));
