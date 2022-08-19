@@ -66,7 +66,7 @@ namespace BuscadorImoveisWorker.Servicos
             foreach (var item in novidadesNetImoveis)
                 Console.WriteLine($"{item.Titulo} - {item.Endereco} | {item.ValorAluguel} {item.ValorCondominio}");
 
-            await notificadorTelegram.NotificarGrupoNovidades(tipoImoveis, novidadesNetImoveis);
+            await notificadorTelegram.NotificarGrupoNovidadesAsync(tipoImoveis, novidadesNetImoveis);
         }
     }
 }

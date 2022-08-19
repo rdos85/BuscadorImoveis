@@ -10,14 +10,16 @@ namespace BuscadorImoveisWorker.Servicos
 {
     public class NotificadorTelegram
     {
+        public const int ImoveisPorMensagem = 5;
+
         private readonly TelegramConfig telegramConfig;
-        private readonly TelegramBotClient telegramBotClient;
+        private readonly ITelegramBotClient telegramBotClient;
         
         private readonly ChatId grupoCoberturaChatId;
         private readonly ChatId chatLogId;
         private readonly AsyncPolicy retryPolicy;
 
-        public NotificadorTelegram(TelegramConfig telegramConfig, TelegramBotClient telegramBotClient)
+        public NotificadorTelegram(TelegramConfig telegramConfig, ITelegramBotClient telegramBotClient)
         {
             this.telegramConfig = telegramConfig;
             this.telegramBotClient = telegramBotClient;
@@ -28,7 +30,7 @@ namespace BuscadorImoveisWorker.Servicos
             retryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(3, (retryCount) => TimeSpan.FromSeconds(Math.Pow(2, retryCount)));
         }
 
-        public async Task NotificarGrupoNovidades(string tipoImoveis, IEnumerable<Imovel> novidades)
+        public async Task NotificarGrupoNovidadesAsync(string tipoImoveis, IEnumerable<Imovel> novidades)
         {
             if (!telegramConfig.DisparoNovidadesAtivo)
                 return;
@@ -38,14 +40,24 @@ namespace BuscadorImoveisWorker.Servicos
 
             string mensagem = $"ENCONTRADOS EM [{tipoImoveis}]\n\n";
 
+            var mensagensMontadas = 0;
+
             foreach (var imovel in novidades)
+            {
                 mensagem += $"\n• {imovel.CriarMensagemTelegram()}\n";
+                mensagensMontadas++;
 
-            var sendMessageRequest = new SendMessageRequest(grupoCoberturaChatId, mensagem);
+                if (mensagensMontadas % ImoveisPorMensagem == 0 || mensagensMontadas == novidades.Count())
+                {
+                    var sendMessageRequest = new SendMessageRequest(grupoCoberturaChatId, mensagem);
 
-            sendMessageRequest.ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html;
+                    sendMessageRequest.ParseMode = Telegram.Bot.Types.Enums.ParseMode.Html;
 
-            _ = await retryPolicy.ExecuteAsync(async () => _ = await telegramBotClient.MakeRequestAsync(sendMessageRequest));
+                    _ = await retryPolicy.ExecuteAsync(async () => _ = await telegramBotClient.MakeRequestAsync(sendMessageRequest));
+
+                    mensagem = "[continuação]";
+                }
+            }
         }
 
         public async Task NotificarChatLog(string mensagem)
