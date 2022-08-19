@@ -10,7 +10,7 @@ namespace BuscadorImoveis.Tests
         [Fact]
         public void Test1()
         {
-            
+            throw new Exception("Erro de teste nos testes");
         }
     }
 }
