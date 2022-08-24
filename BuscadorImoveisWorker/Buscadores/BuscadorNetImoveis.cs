@@ -33,6 +33,7 @@ namespace BuscadorImoveisWorker.Buscadores
 
                 while (true)
                 {
+                    AceitarCookies(chrome);
                     var content = chrome.PageSource;
                     var parser = new HtmlParser();
                     var document = parser.ParseDocument(content);
@@ -105,6 +106,23 @@ namespace BuscadorImoveisWorker.Buscadores
                 Console.WriteLine("Chrome closed.");
             }
 
+        }
+
+        private void AceitarCookies(ChromeDriver chrome)
+        {
+            try
+            {
+                var botoesAceitarCookies = chrome.FindElements(By.ClassName("wpcc-btn"));
+
+                if (botoesAceitarCookies == null || !botoesAceitarCookies.Any())
+                    return;
+
+                botoesAceitarCookies[0].Click();
+            }
+            catch (Exception)
+            {
+            }
+            
         }
     }
 }
